@@ -1,7 +1,9 @@
 package;
 
+import openfl.geom.Point;
 import openfl.display.Sprite;
 import openfl.events.Event;
+import openfl.events.MouseEvent;
 
 class GameScene extends Scene {
 
@@ -9,11 +11,15 @@ class GameScene extends Scene {
 
   private var level:Level;
   private var people:Array<Person>;
+  private var escalators:Array<Escalator>;
 
   private var levelSprite:Sprite;
 
   private var lastSpawn:Float;
   private var elapsedTime:Float;
+  private var mousePressed:Bool;
+  private var mousePoint:Point;
+  private var activeEscalator:Escalator;
 
   public function new()
   {
@@ -21,9 +27,12 @@ class GameScene extends Scene {
 
     level = Level.getLevel(1);
     people = new Array<Person>();
+    escalators = new Array<Escalator>();
 
     lastSpawn = 0;
     elapsedTime = 0;
+    mousePressed = false;
+    activeEscalator = null;
   }
 
   override public function onSceneEnter():Void
@@ -90,6 +99,31 @@ class GameScene extends Scene {
     for (person in people)
     {
       addChild(person);
+    }
+  }
+
+  override public function onMouseDown(event:MouseEvent):Void
+  {
+    mousePressed = true;
+    mousePoint = new Point(mouseX, mouseY);
+
+    var escalator = new Escalator(mouseX, mouseY);
+    addChild(escalator);
+    activeEscalator = escalator;
+  }
+
+  override public function onMouseUp(event:MouseEvent):Void
+  {
+    mousePressed = false;
+    activeEscalator = null;
+  }
+
+  override public function onMouseMove(event:MouseEvent):Void
+  {
+    if (mousePressed && activeEscalator != null)
+    {
+      activeEscalator.setEnd(mouseX, mouseY);
+      activeEscalator.redraw();
     }
   }
   
