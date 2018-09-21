@@ -67,7 +67,23 @@ class Person extends Sprite {
 
   public function collidesWith(rect:Rectangle):Bool
   {
-    return position.x + RADIUS > rect.x && position.y + RADIUS > rect.y && position.x - RADIUS < rect.x + rect.width && position.y - RADIUS < rect.y + rect.height;
+    var hw = rect.width/2;
+    var hh = rect.height/2;
+    var dx = Math.abs(position.x - rect.x - hw);
+    var dy = Math.abs(position.y - rect.y - hh);
+
+    if (dx > hw + RADIUS)
+      return false;
+    if (dy > hh + RADIUS)
+      return false;
+
+    if (dx <= hw)
+      return true;
+    if (dy <= hh)
+      return true;
+
+    var cd = (dx - hw)*(dx - hw) + (dy - hh)*(dy - hh);
+    return cd <= RADIUS*RADIUS;
   }
 
   public function resolveCollision(rect:Rectangle):Void
