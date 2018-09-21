@@ -24,15 +24,21 @@ class Person extends Sprite {
   {
     super();
 
-    var df = SceneManager.getDisplayFactor();
-
     grounded = false;
     moveSpeed = 0;
     fallSpeed = 0;
     velocity = new Point();
     position = new Point(0.5, 0);
 
+    redraw();
+  }
+
+  public function redraw():Void
+  {
+    var df = SceneManager.getDisplayFactor();
+
     #if debug
+    graphics.clear();
     graphics.lineStyle(2, 0xDEFEC8, 1);
     graphics.beginFill(0xDEFEC8, 0.5);
     graphics.drawCircle(0, 0, RADIUS * df);

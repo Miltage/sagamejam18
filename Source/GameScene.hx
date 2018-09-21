@@ -103,6 +103,13 @@ class GameScene extends Scene {
     for (person in people)
     {
       addChild(person);
+      person.redraw();
+    }
+
+    for (escalator in escalators)
+    {
+      addChild(escalator);
+      escalator.redraw();
     }
   }
 

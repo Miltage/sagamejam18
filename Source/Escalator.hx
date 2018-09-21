@@ -28,10 +28,12 @@ class Escalator extends Sprite {
   {
     var df = SceneManager.getDisplayFactor();
 
+    #if debug
     graphics.clear();
     graphics.lineStyle(2, 0x0000FF, 1);
     graphics.moveTo(start.x * df, start.y * df);
     graphics.lineTo(end.x * df, end.y * df);
+    #end
   }
 
   public function getStart():Point
