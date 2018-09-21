@@ -4,10 +4,14 @@ import openfl.geom.Point;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.MouseEvent;
+import openfl.events.KeyboardEvent;
+
+import haxe.Timer;
 
 class GameScene extends Scene {
 
   public static inline var SPAWN_DELAY:Float = 3;
+  public static inline var SCROLL_SPEED:Float = 0.5;
 
   private var level:Level;
   private var people:Array<Person>;
@@ -19,7 +23,9 @@ class GameScene extends Scene {
   private var elapsedTime:Float;
   private var mousePressed:Bool;
   private var mousePoint:Point;
+  private var pan:Point;
   private var activeEscalator:Escalator;
+  private var keyPresses:Map<Int, Float>;
 
   public function new()
   {
@@ -33,6 +39,8 @@ class GameScene extends Scene {
     elapsedTime = 0;
     mousePressed = false;
     activeEscalator = null;
+    pan = new Point();
+    keyPresses = new Map<Int, Float>();
   }
 
   override public function onSceneEnter():Void
@@ -52,10 +60,25 @@ class GameScene extends Scene {
     if (elapsedTime - lastSpawn > SPAWN_DELAY)
     {
       var person:Person = new Person();
-      addChild(person);
+      levelSprite.addChild(person);
       people.push(person);
       lastSpawn = elapsedTime;
     }
+
+    var df = SceneManager.getDisplayFactor();
+
+    if (keyPresses.exists('A'.code))
+      pan.x += SCROLL_SPEED * df * timeDelta;
+    else if (keyPresses.exists('D'.code))
+      pan.x += -SCROLL_SPEED * df * timeDelta;
+
+    if (keyPresses.exists('W'.code))
+      pan.y += SCROLL_SPEED * df * timeDelta;
+    else if (keyPresses.exists('S'.code))
+      pan.y += -SCROLL_SPEED * df * timeDelta;
+
+    levelSprite.x = pan.x;
+    levelSprite.y = pan.y;
 
     doPhysicsUpdate(timeDelta);
   }
@@ -106,13 +129,13 @@ class GameScene extends Scene {
 
     for (person in people)
     {
-      addChild(person);
+      levelSprite.addChild(person);
       person.redraw();
     }
 
     for (escalator in escalators)
     {
-      addChild(escalator);
+      levelSprite.addChild(escalator);
       escalator.redraw();
     }
   }
@@ -122,10 +145,10 @@ class GameScene extends Scene {
     mousePressed = true;
     mousePoint = new Point(mouseX, mouseY);
 
-    var escalator = new Escalator(mouseX, mouseY);
-    addChild(escalator);
+    var escalator = new Escalator(mouseX - pan.x, mouseY - pan.y);
     escalators.push(escalator);
     activeEscalator = escalator;
+    redraw();
   }
 
   override public function onMouseUp(event:MouseEvent):Void
@@ -138,9 +161,20 @@ class GameScene extends Scene {
   {
     if (mousePressed && activeEscalator != null)
     {
-      activeEscalator.setEnd(mouseX, mouseY);
+      activeEscalator.setEnd(mouseX - pan.x, mouseY - pan.y);
       activeEscalator.redraw();
     }
+  }
+
+  override public function onKeyDown(event:KeyboardEvent):Void
+  {
+    var now = Timer.stamp();
+    keyPresses.set(Std.int(event.keyCode), now);
+  }
+
+  override public function onKeyUp(event:KeyboardEvent):Void
+  {
+    keyPresses.remove(Std.int(event.keyCode));
   }
   
 }
