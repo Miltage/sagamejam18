@@ -17,6 +17,8 @@ class Person extends Sprite {
   private var grounded:Bool;
   private var moveSpeed:Float;
   private var fallSpeed:Float;
+
+  private var escalator:Escalator;
   
   public function new()
   {
@@ -41,7 +43,14 @@ class Person extends Sprite {
   {
     var df = SceneManager.getDisplayFactor();
 
-    if (isGrounded())
+    if (isRiding())
+    {
+      velocity = escalator.getAngle(MAX_MOVE_SPEED / 2);
+
+      if (Point.distance(position, escalator.getEnd()) < RADIUS)
+        escalator = null;
+    }
+    else if (isGrounded())
     {
       velocity.y = 0;
       velocity.x += MOVE_SPEED;
@@ -65,8 +74,11 @@ class Person extends Sprite {
     y = Math.round(position.y * df);
   }
 
-  public function collidesWith(rect:Rectangle):Bool
+  public function collidesWithPlatform(rect:Rectangle):Bool
   {
+    if (isRiding())
+      return false;
+
     var hw = rect.width/2;
     var hh = rect.height/2;
     var dx = Math.abs(position.x - rect.x - hw);
@@ -84,6 +96,23 @@ class Person extends Sprite {
 
     var cd = (dx - hw)*(dx - hw) + (dy - hh)*(dy - hh);
     return cd <= RADIUS*RADIUS;
+  }
+
+  public function collidesWithEscalator(escalator:Escalator):Bool
+  {
+    return Point.distance(position, escalator.getStart()) < RADIUS;
+  }
+
+  public function isRiding():Bool
+  {
+    return escalator != null;
+  }
+
+  public function rideEscalator(escalator:Escalator):Void
+  {
+    this.escalator = escalator;
+    position.x = escalator.getStart().x;
+    position.y = escalator.getStart().y - RADIUS;
   }
 
   public function resolveCollision(rect:Rectangle):Void

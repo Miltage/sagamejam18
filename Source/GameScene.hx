@@ -67,8 +67,12 @@ class GameScene extends Scene {
     for (person in people)
     {
       for (platform in level.getPlatforms())
-        if (person.collidesWith(platform))
+        if (person.collidesWithPlatform(platform))
           person.resolveCollision(platform);
+
+      for (escalator in escalators)
+        if (person.collidesWithEscalator(escalator) && !person.isRiding())
+          person.rideEscalator(escalator);
 
       person.update(timeDelta);
     }
@@ -109,6 +113,7 @@ class GameScene extends Scene {
 
     var escalator = new Escalator(mouseX, mouseY);
     addChild(escalator);
+    escalators.push(escalator);
     activeEscalator = escalator;
   }
 

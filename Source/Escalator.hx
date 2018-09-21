@@ -9,6 +9,7 @@ class Escalator extends Sprite {
   
   private var start:Point;
   private var end:Point;
+  private var direction:Point;
 
   public function new(x:Float, y:Float)
   {
@@ -18,6 +19,7 @@ class Escalator extends Sprite {
 
     start = new Point(x / df, y / df);
     end = new Point(start.x, start.y);
+    direction = new Point();
 
     redraw();
   }
@@ -42,6 +44,16 @@ class Escalator extends Sprite {
     return end;
   }
 
+  public function getDirection():Point
+  {
+    return direction;
+  }
+
+  public function getAngle(length:Float):Point
+  {
+    return new Point(length * Math.cos(ANGLE) * direction.x, length * Math.sin(ANGLE) * direction.y);
+  }
+
   public function setEnd(x:Float, y:Float):Void
   {
     var df = SceneManager.getDisplayFactor();
@@ -55,8 +67,11 @@ class Escalator extends Sprite {
     if (target.x < start.x)
       dx = -1;
 
-    end.x = start.x + len * Math.cos(ANGLE) * dx;
-    end.y = start.y + len * Math.sin(ANGLE) * dy;
+    direction = new Point(dx, dy);
+    var angle = getAngle(len);
+
+    end.x = start.x + angle.x;
+    end.y = start.y + angle.y;
     redraw();
   }
 }
