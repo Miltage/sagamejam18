@@ -56,16 +56,17 @@ class GameScene extends Scene {
 
   override public function onEnterFrame(event:Event, timeDelta:Float):Void
   {
+    var df = SceneManager.getDisplayFactor();
+
     elapsedTime += timeDelta;
     if (elapsedTime - lastSpawn > SPAWN_DELAY)
     {
       var person:Person = new Person();
       levelSprite.addChild(person);
       people.push(person);
+      person.setPosition(level.getEntrance());
       lastSpawn = elapsedTime;
     }
-
-    var df = SceneManager.getDisplayFactor();
 
     if (keyPresses.exists('A'.code))
       pan.x += SCROLL_SPEED * df * timeDelta;
@@ -102,6 +103,12 @@ class GameScene extends Scene {
       for (platform in level.getPlatforms())
         if (person.collidesWithPlatform(platform))
           person.resolveCollision(platform);
+
+      if (person.collidesWithExit(level.getExit()))
+      {
+        people.remove(person);
+        levelSprite.removeChild(person);
+      }
     }
   }
 
@@ -126,6 +133,16 @@ class GameScene extends Scene {
       levelSprite.graphics.drawRect(platform.x * df, platform.y * df, platform.width * df, platform.height * df);
       #end
     }
+
+    #if debug
+      levelSprite.graphics.lineStyle(2, 0x33FF33, 1);
+      levelSprite.graphics.beginFill(0x33FF33, 0.5);
+      levelSprite.graphics.drawRect((level.getEntrance().x - 0.05) * df, (level.getEntrance().y - 0.05) * df, 0.1 * df, 0.1 * df);
+
+      levelSprite.graphics.lineStyle(2, 0x3333FF, 1);
+      levelSprite.graphics.beginFill(0x3333FF, 0.5);
+      levelSprite.graphics.drawRect((level.getExit().x - 0.05) * df, (level.getExit().y - 0.05) * df, 0.1 * df, 0.1 * df);
+    #end
 
     for (person in people)
     {

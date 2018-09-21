@@ -6,7 +6,7 @@ import openfl.display.Sprite;
 
 class Person extends Sprite {
 
-  public static inline var MAX_MOVE_SPEED:Float = 0.2;
+  public static inline var MAX_MOVE_SPEED:Float = 0.1;
   public static inline var MOVE_SPEED:Float = 0.008;
   public static inline var MAX_FALL_SPEED:Float = 0.4;
   public static inline var FALL_SPEED:Float = 0.02;
@@ -28,9 +28,15 @@ class Person extends Sprite {
     moveSpeed = 0;
     fallSpeed = 0;
     velocity = new Point();
-    position = new Point(0.5, 0);
+    position = new Point();
 
     redraw();
+  }
+
+  public function setPosition(pos:Point):Void
+  {
+    position.x = pos.x;
+    position.y = pos.y;
   }
 
   public function redraw():Void
@@ -51,7 +57,7 @@ class Person extends Sprite {
 
     if (isRiding())
     {
-      velocity = escalator.getAngle(MAX_MOVE_SPEED / 2);
+      velocity = escalator.getAngle(MAX_MOVE_SPEED * 0.75);
 
       if (Point.distance(position, escalator.getEnd()) < RADIUS)
         escalator = null;
@@ -119,6 +125,11 @@ class Person extends Sprite {
   public function collidesWithEscalator(escalator:Escalator):Bool
   {
     return Point.distance(position, escalator.getStart()) < RADIUS;
+  }
+
+  public function collidesWithExit(exit:Point):Bool
+  {
+    return Point.distance(position, exit) < RADIUS;
   }
 
   public function isRiding():Bool
