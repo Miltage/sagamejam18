@@ -87,9 +87,9 @@ class SceneManager extends Sprite {
     stage.addEventListener(Event.DEACTIVATE, onDeactivate);
 
     addScene(SPLASH, new SplashScene());
-    addScene(GAME, new CatScene());
+    addScene(GAME, new GameScene());
 
-    setCurrentScene(SPLASH);
+    setCurrentScene(GAME);
   }
 
   public static function getInstance():SceneManager
