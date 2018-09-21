@@ -5,12 +5,15 @@ import openfl.events.Event;
 
 class GameScene extends Scene {
 
-  public static inline var SPAWN_DELAY:Int = 100;
+  public static inline var SPAWN_DELAY:Float = 3;
 
   private var level:Level;
   private var people:Array<Person>;
 
   private var levelSprite:Sprite;
+
+  private var lastSpawn:Float;
+  private var elapsedTime:Float;
 
   public function new()
   {
@@ -19,8 +22,8 @@ class GameScene extends Scene {
     level = Level.getLevel(1);
     people = new Array<Person>();
 
-    var person:Person = new Person();
-    people.push(person);
+    lastSpawn = 0;
+    elapsedTime = 0;
   }
 
   override public function onSceneEnter():Void
@@ -36,6 +39,15 @@ class GameScene extends Scene {
 
   override public function onEnterFrame(event:Event, timeDelta:Float):Void
   {
+    elapsedTime += timeDelta;
+    if (elapsedTime - lastSpawn > SPAWN_DELAY)
+    {
+      var person:Person = new Person();
+      addChild(person);
+      people.push(person);
+      lastSpawn = elapsedTime;
+    }
+
     doPhysicsUpdate(timeDelta);
   }
 
@@ -48,7 +60,7 @@ class GameScene extends Scene {
       for (platform in level.getPlatforms())
         if (person.collidesWith(platform))
           person.resolveCollision(platform);
-        
+
       person.update(timeDelta);
     }
   }
