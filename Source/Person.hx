@@ -104,6 +104,18 @@ class Person extends Sprite {
     return cd <= RADIUS*RADIUS;
   }
 
+  public function resolveCollision(rect:Rectangle):Void
+  {
+    var dx = position.x - rect.x + rect.width/2;
+    var dy = position.y - rect.y + rect.height/2;
+    if (dx < dy)
+      position.x -= dx * RADIUS;
+    else
+      position.y -= dy * RADIUS;
+    grounded = position.y < rect.y;
+    velocity.y = 0;
+  }
+
   public function collidesWithEscalator(escalator:Escalator):Bool
   {
     return Point.distance(position, escalator.getStart()) < RADIUS;
@@ -119,13 +131,6 @@ class Person extends Sprite {
     this.escalator = escalator;
     position.x = escalator.getStart().x;
     position.y = escalator.getStart().y - RADIUS;
-  }
-
-  public function resolveCollision(rect:Rectangle):Void
-  {
-    position.y = rect.y - RADIUS;
-    grounded = true;
-    velocity.y = 0;
   }
 
   public function setGrounded(grounded:Bool):Void

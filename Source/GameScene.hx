@@ -75,6 +75,10 @@ class GameScene extends Scene {
           person.rideEscalator(escalator);
 
       person.update(timeDelta);
+
+      for (platform in level.getPlatforms())
+        if (person.collidesWithPlatform(platform))
+          person.resolveCollision(platform);
     }
   }
 
