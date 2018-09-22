@@ -21,6 +21,11 @@ class Level {
     setExit();
   }
 
+  public function getNumber():Int
+  {
+    return number;
+  }
+
   public function getEntrance():Point
   {
     return entrance;
@@ -56,6 +61,9 @@ class Level {
       case 1:
         platforms.add(new Rectangle(0.1, 0.4, 0.5, 0.1));
         platforms.add(new Rectangle(0.85, 0.65, 0.7, 0.1));
+
+      case 2:
+        platforms.add(new Rectangle(0.4, 0.2, 0.5, 0.1));
     }
   }
 

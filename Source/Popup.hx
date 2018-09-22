@@ -14,12 +14,14 @@ class Popup extends SubScene {
 
   private var message:String;
   private var waitTill:Float;
+  private var onDismiss:Void->Void;
 
-  public function new(message:String)
+  public function new(message:String, ?onDismiss:Void->Void)
   {
     super();
 
     this.message = message;
+    this.onDismiss = onDismiss;
 
     waitTill = Timer.stamp() + MIN_WAIT;
   }
@@ -73,6 +75,9 @@ class Popup extends SubScene {
     //SoundManager.playUiSfx(UI_GENERAL);
 
     SceneManager.popSubScene();
+
+    if (onDismiss != null)
+      onDismiss();
   }
 
 }

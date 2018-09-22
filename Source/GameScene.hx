@@ -11,6 +11,7 @@ import haxe.Timer;
 class GameScene extends Scene {
 
   public static inline var SPAWN_DELAY:Float = 3;
+  public static inline var SPAWN_TOTAL:Float = 5;
   public static inline var SCROLL_SPEED:Float = 0.5;
 
   private var level:Level;
@@ -20,6 +21,8 @@ class GameScene extends Scene {
   private var levelSprite:Sprite;
 
   private var lastSpawn:Float;
+  private var numSpawned:Float;
+  private var numFinished:Float;
   private var elapsedTime:Float;
   private var mousePressed:Bool;
   private var mousePoint:Point;
@@ -31,16 +34,24 @@ class GameScene extends Scene {
   {
     super();
 
-    level = Level.getLevel(1);
+    startLevel(1);
+  }
+
+  private function startLevel(number:Int):Void
+  {
+    level = Level.getLevel(number);
     people = new Array<Person>();
     escalators = new Array<Escalator>();
 
     lastSpawn = 0;
     elapsedTime = 0;
+    numSpawned = 0;
+    numFinished = 0;
     mousePressed = false;
     activeEscalator = null;
     pan = new Point();
     keyPresses = new Map<Int, Float>();
+    onSceneResize();
   }
 
   override public function onSceneEnter():Void
@@ -59,13 +70,14 @@ class GameScene extends Scene {
     var df = SceneManager.getDisplayFactor();
 
     elapsedTime += timeDelta;
-    if (elapsedTime - lastSpawn > SPAWN_DELAY)
+    if (elapsedTime - lastSpawn > SPAWN_DELAY && numSpawned < SPAWN_TOTAL)
     {
       var person:Person = new Person();
       levelSprite.addChild(person);
       people.push(person);
       person.setPosition(level.getEntrance());
       lastSpawn = elapsedTime;
+      numSpawned++;
     }
 
     if (keyPresses.exists('A'.code))
@@ -82,6 +94,21 @@ class GameScene extends Scene {
     levelSprite.y = pan.y;
 
     doPhysicsUpdate(timeDelta);
+
+    // check for win
+    if (people.length == 0 && numSpawned == SPAWN_TOTAL)
+    {
+      if (numFinished >= Math.round(SPAWN_TOTAL * 0.8))
+        SceneManager.pushSubScene(new Popup("Win!", function()
+          {
+            startLevel(level.getNumber() + 1);
+          }));
+      else
+        SceneManager.pushSubScene(new Popup("Lose!", function()
+          {
+            startLevel(level.getNumber());
+          }));
+    }
   }
 
   private function doPhysicsUpdate(timeDelta:Float):Void
@@ -105,6 +132,13 @@ class GameScene extends Scene {
           person.resolveCollision(platform);
 
       if (person.collidesWithExit(level.getExit()))
+      {
+        people.remove(person);
+        levelSprite.removeChild(person);
+        numFinished++;
+      }
+
+      if (person.y > SceneManager.getHeight() * 2)
       {
         people.remove(person);
         levelSprite.removeChild(person);

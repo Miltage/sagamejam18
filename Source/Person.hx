@@ -6,7 +6,7 @@ import openfl.display.Sprite;
 
 class Person extends Sprite {
 
-  public static inline var MAX_MOVE_SPEED:Float = 0.1;
+  public static inline var MAX_MOVE_SPEED:Float = 0.12;
   public static inline var MOVE_SPEED:Float = 0.008;
   public static inline var MAX_FALL_SPEED:Float = 0.4;
   public static inline var FALL_SPEED:Float = 0.02;
