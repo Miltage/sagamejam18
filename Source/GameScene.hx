@@ -12,7 +12,7 @@ class GameScene extends Scene {
 
   public static inline var SPAWN_DELAY:Float = 3;
   public static inline var SPAWN_TOTAL:Float = 5;
-  public static inline var SCROLL_SPEED:Float = 0.5;
+  public static inline var SCROLL_SPEED:Float = 0.65;
 
   private var level:Level;
   private var people:Array<Person>;
@@ -80,14 +80,14 @@ class GameScene extends Scene {
       numSpawned++;
     }
 
-    if (keyPresses.exists('A'.code))
+    if (keyPresses.exists('A'.code) || keyPresses.exists(37))
       pan.x += SCROLL_SPEED * df * timeDelta;
-    else if (keyPresses.exists('D'.code))
+    else if (keyPresses.exists('D'.code) || keyPresses.exists(39))
       pan.x += -SCROLL_SPEED * df * timeDelta;
 
-    if (keyPresses.exists('W'.code))
+    if (keyPresses.exists('W'.code) || keyPresses.exists(38))
       pan.y += SCROLL_SPEED * df * timeDelta;
-    else if (keyPresses.exists('S'.code))
+    else if (keyPresses.exists('S'.code) || keyPresses.exists(40))
       pan.y += -SCROLL_SPEED * df * timeDelta;
 
     levelSprite.x = pan.x;
