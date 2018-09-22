@@ -8,8 +8,8 @@ class Person extends Sprite {
 
   public static inline var MAX_MOVE_SPEED:Float = 0.12;
   public static inline var MOVE_SPEED:Float = 0.008;
-  public static inline var MAX_FALL_SPEED:Float = 0.4;
-  public static inline var FALL_SPEED:Float = 0.02;
+  public static inline var MAX_FALL_SPEED:Float = 0.8;
+  public static inline var FALL_SPEED:Float = 0.035;
   public static inline var RADIUS:Float = 0.05;
 
   private var velocity:Point;
@@ -124,7 +124,7 @@ class Person extends Sprite {
 
   public function collidesWithEscalator(escalator:Escalator):Bool
   {
-    return Point.distance(position, escalator.getStart()) < RADIUS;
+    return Point.distance(position, escalator.getStart()) < RADIUS * 1.1;
   }
 
   public function collidesWithExit(exit:Point):Bool

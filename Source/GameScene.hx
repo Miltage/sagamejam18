@@ -13,6 +13,7 @@ class GameScene extends Scene {
   public static inline var SPAWN_DELAY:Float = 3;
   public static inline var SPAWN_TOTAL:Float = 5;
   public static inline var SCROLL_SPEED:Float = 0.65;
+  public static inline var PLACE_DIST:Float = 0.2;
 
   private var level:Level;
   private var people:Array<Person>;
@@ -28,6 +29,7 @@ class GameScene extends Scene {
   private var mousePoint:Point;
   private var pan:Point;
   private var activeEscalator:Escalator;
+  private var ghostEscalator:Escalator;
   private var keyPresses:Map<Int, Float>;
 
   public function new()
@@ -49,9 +51,11 @@ class GameScene extends Scene {
     numFinished = 0;
     mousePressed = false;
     activeEscalator = null;
+
     pan = new Point();
     keyPresses = new Map<Int, Float>();
     onSceneResize();
+
   }
 
   override public function onSceneEnter():Void
@@ -108,6 +112,17 @@ class GameScene extends Scene {
           {
             startLevel(level.getNumber());
           }));
+    }
+
+    // ghost escalator
+    var m = new Point((mouseX - pan.x) / df, (mouseY - pan.y) / df);
+    var p = level.getPlatformAt(m);
+    if (p != null && !mousePressed)
+    {
+      ghostEscalator.visible = m.x > p.x && m.x < p.x + p.width && m.y > p.y - PLACE_DIST && m.y < p.y + PLACE_DIST;
+      ghostEscalator.setStart(m.x, p.y);
+      ghostEscalator.setStartingPlatform(p);
+      ghostEscalator.redraw();
     }
   }
 
@@ -189,31 +204,51 @@ class GameScene extends Scene {
       levelSprite.addChild(escalator);
       escalator.redraw();
     }
+
+    ghostEscalator = new Escalator();
+    ghostEscalator.visible = false;
+    ghostEscalator.alpha = 0.2;
+    ghostEscalator.redraw();
+    levelSprite.addChild(ghostEscalator);
   }
 
   override public function onMouseDown(event:MouseEvent):Void
   {
     mousePressed = true;
     mousePoint = new Point(mouseX, mouseY);
-
-    var escalator = new Escalator(mouseX - pan.x, mouseY - pan.y);
-    escalators.push(escalator);
-    activeEscalator = escalator;
-    redraw();
   }
 
   override public function onMouseUp(event:MouseEvent):Void
   {
     mousePressed = false;
-    activeEscalator = null;
+    ghostEscalator.visible = false;
+
+    if (ghostEscalator.isClamped())
+    {
+      var escalator = new Escalator();
+      escalator.setStart(ghostEscalator.getStart().x, ghostEscalator.getStart().y);
+      escalator.setEnd(ghostEscalator.getEnd().x, ghostEscalator.getEnd().y);
+      escalators.push(escalator);
+    }
+    
+    redraw();
   }
 
   override public function onMouseMove(event:MouseEvent):Void
   {
-    if (mousePressed && activeEscalator != null)
+    if (mousePressed && ghostEscalator.visible)
     {
-      activeEscalator.setEnd(mouseX - pan.x, mouseY - pan.y);
-      activeEscalator.redraw();
+      var df = SceneManager.getDisplayFactor();
+      var m = new Point((mouseX - pan.x) / df, (mouseY - pan.y) / df);
+      var p = level.getPlatformAt(m);
+      if (p != null && ghostEscalator.getStartingPlatform() != p && level.getPlatformAt(ghostEscalator.getClampedEnd(m, p)) != null)
+      {
+        ghostEscalator.clampEndToPlatform(m, p);
+      }
+      else
+      {
+        ghostEscalator.setEnd(m.x, m.y);
+      }
     }
   }
 
